@@ -16,6 +16,8 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.surendramaran.yolov8tflite.Constants.LABELS_PATH
+import com.surendramaran.yolov8tflite.Constants.MODEL_PATH
 import com.surendramaran.yolov8tflite.databinding.ActivityMainBinding
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -37,7 +39,7 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        detector = Detector(baseContext, "model.tflite", "labels.txt", this)
+        detector = Detector(baseContext, MODEL_PATH, LABELS_PATH, this)
         detector.setup()
 
         if (allPermissionsGranted()) {
