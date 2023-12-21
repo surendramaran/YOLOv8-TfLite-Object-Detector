@@ -3,6 +3,7 @@ package com.surendramaran.yolov8tflite
 import android.content.Context
 import android.graphics.Bitmap
 import android.media.FaceDetector.Face.CONFIDENCE_THRESHOLD
+import android.os.SystemClock
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.support.common.FileUtil
@@ -80,6 +81,8 @@ class Detector(
         if (numChannel == 0) return
         if (numElements == 0) return
 
+        var inferenceTime = SystemClock.uptimeMillis()
+
         val resizedBitmap = Bitmap.createScaledBitmap(frame, tensorWidth, tensorHeight, false)
 
         val tensorImage = TensorImage(DataType.FLOAT32)
@@ -96,7 +99,8 @@ class Detector(
             return
         }
 
-        detectorListener.onDetect(bestBoxes)
+        inferenceTime = SystemClock.uptimeMillis() - inferenceTime
+        detectorListener.onDetect(bestBoxes, inferenceTime)
     }
 
     private fun bestBox(array: FloatArray) : List<BoundingBox>? {
@@ -171,7 +175,7 @@ class Detector(
 
     interface DetectorListener {
         fun onEmptyDetect()
-        fun onDetect(boundingBoxes: List<BoundingBox>)
+        fun onDetect(boundingBoxes: List<BoundingBox>, inferenceTime: Long)
     }
 
     companion object {

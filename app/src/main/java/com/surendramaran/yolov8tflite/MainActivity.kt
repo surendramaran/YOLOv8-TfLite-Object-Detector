@@ -164,10 +164,13 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
         binding.overlay.invalidate()
     }
 
-    override fun onDetect(boundingBoxes: List<BoundingBox>) {
-        binding.overlay.apply {
-            setResults(boundingBoxes)
-            invalidate()
+    override fun onDetect(boundingBoxes: List<BoundingBox>, inferenceTime: Long) {
+        runOnUiThread {
+            binding.inferenceTime.text = "${inferenceTime}ms"
+            binding.overlay.apply {
+                setResults(boundingBoxes)
+                invalidate()
+            }
         }
     }
 }
