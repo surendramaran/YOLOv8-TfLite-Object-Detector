@@ -109,7 +109,6 @@ class Detector(
         val boundingBoxes = mutableListOf<BoundingBox>()
 
         for (c in 0 until numElements) {
-            // credit https://github.com/philipmortimer
             var maxConf = -1.0f
             var maxIdx = -1
             var j = 4
@@ -124,8 +123,7 @@ class Detector(
             }
 
             if (maxConf > CONFIDENCE_THRESHOLD) {
-                val cls = maxIdx
-                val clsName = labels[cls]
+                val clsName = labels[maxIdx]
                 val cx = array[c] // 0
                 val cy = array[c + numElements] // 1
                 val w = array[c + numElements * 2]
@@ -143,7 +141,7 @@ class Detector(
                     BoundingBox(
                         x1 = x1, y1 = y1, x2 = x2, y2 = y2,
                         cx = cx, cy = cy, w = w, h = h,
-                        cnf = maxConf, cls = cls, clsName = clsName
+                        cnf = maxConf, cls = maxIdx, clsName = clsName
                     )
                 )
             }
