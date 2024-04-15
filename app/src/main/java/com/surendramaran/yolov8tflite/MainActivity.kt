@@ -161,7 +161,9 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
     }
 
     override fun onEmptyDetect() {
-        binding.overlay.invalidate()
+        runOnUiThread {
+            binding.overlay.clear()
+        }
     }
 
     override fun onDetect(boundingBoxes: List<BoundingBox>, inferenceTime: Long) {

@@ -47,6 +47,13 @@ class Detector(
 
         tensorWidth = inputShape[1]
         tensorHeight = inputShape[2]
+
+        // If in case input shape is in format of [1, 3, ..., ...]
+        if (inputShape[1] == 3) {
+            tensorWidth = inputShape[2]
+            tensorHeight = inputShape[3]
+        }
+
         numChannel = outputShape[1]
         numElements = outputShape[2]
 
@@ -83,7 +90,7 @@ class Detector(
 
         val resizedBitmap = Bitmap.createScaledBitmap(frame, tensorWidth, tensorHeight, false)
 
-        val tensorImage = TensorImage(DataType.FLOAT32)
+        val tensorImage = TensorImage(INPUT_IMAGE_TYPE)
         tensorImage.load(resizedBitmap)
         val processedImage = imageProcessor.process(tensorImage)
         val imageBuffer = processedImage.buffer
@@ -91,10 +98,8 @@ class Detector(
         val output = TensorBuffer.createFixedSize(intArrayOf(1 , numChannel, numElements), OUTPUT_IMAGE_TYPE)
         interpreter?.run(imageBuffer, output.buffer)
 
-
         val bestBoxes = bestBox(output.floatArray)
         inferenceTime = SystemClock.uptimeMillis() - inferenceTime
-
 
         if (bestBoxes == null) {
             detectorListener.onEmptyDetect()
