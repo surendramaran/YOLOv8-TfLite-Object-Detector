@@ -39,8 +39,12 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        detector = Detector(baseContext, MODEL_PATH, LABELS_PATH, this)
-        detector.setup()
+        cameraExecutor = Executors.newSingleThreadExecutor()
+
+        cameraExecutor.submit {
+            detector = Detector(baseContext, MODEL_PATH, LABELS_PATH, this)
+            detector.setup()
+        }
 
         if (allPermissionsGranted()) {
             startCamera()
@@ -48,7 +52,22 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
             ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
         }
 
-        cameraExecutor = Executors.newSingleThreadExecutor()
+        bindListeners()
+    }
+
+    private fun bindListeners() {
+        binding.apply {
+            isGpu.setOnCheckedChangeListener { buttonView, isChecked ->
+                cameraExecutor.submit {
+                    detector.setup(isGpu = isChecked)
+                }
+                if (isChecked) {
+                    buttonView.setBackgroundColor(ContextCompat.getColor(baseContext, R.color.orange))
+                } else {
+                    buttonView.setBackgroundColor(ContextCompat.getColor(baseContext, R.color.gray))
+                }
+            }
+        }
     }
 
     private fun startCamera() {
@@ -139,7 +158,7 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
 
     override fun onDestroy() {
         super.onDestroy()
-        detector.clear()
+        detector.close()
         cameraExecutor.shutdown()
     }
 

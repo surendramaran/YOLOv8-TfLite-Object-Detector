@@ -5,6 +5,8 @@ import android.graphics.Bitmap
 import android.os.SystemClock
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.Interpreter
+import org.tensorflow.lite.gpu.CompatibilityList
+import org.tensorflow.lite.gpu.GpuDelegate
 import org.tensorflow.lite.support.common.FileUtil
 import org.tensorflow.lite.support.common.ops.CastOp
 import org.tensorflow.lite.support.common.ops.NormalizeOp
@@ -20,7 +22,7 @@ class Detector(
     private val context: Context,
     private val modelPath: String,
     private val labelPath: String,
-    private val detectorListener: DetectorListener
+    private val detectorListener: DetectorListener,
 ) {
 
     private var interpreter: Interpreter? = null
@@ -36,10 +38,31 @@ class Detector(
         .add(CastOp(INPUT_IMAGE_TYPE))
         .build()
 
-    fun setup() {
+    fun setup(isGpu: Boolean = true) {
+
+        if (interpreter != null) {
+            close()
+        }
+
+        val options = if (isGpu) {
+            val compatList = CompatibilityList()
+
+            Interpreter.Options().apply{
+                if(compatList.isDelegateSupportedOnThisDevice){
+                    val delegateOptions = compatList.bestOptionsForThisDevice
+                    this.addDelegate(GpuDelegate(delegateOptions))
+                } else {
+                    this.setNumThreads(4)
+                }
+            }
+        } else {
+            Interpreter.Options().apply{
+                this.setNumThreads(2)
+            }
+        }
+
+
         val model = FileUtil.loadMappedFile(context, modelPath)
-        val options = Interpreter.Options()
-        options.numThreads = 4
         interpreter = Interpreter(model, options)
 
         val inputShape = interpreter?.getInputTensor(0)?.shape() ?: return
@@ -74,7 +97,7 @@ class Detector(
         }
     }
 
-    fun clear() {
+    fun close() {
         interpreter?.close()
         interpreter = null
     }
