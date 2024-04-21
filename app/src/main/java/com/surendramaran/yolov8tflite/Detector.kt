@@ -5,8 +5,6 @@ import android.graphics.Bitmap
 import android.os.SystemClock
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.Interpreter
-import org.tensorflow.lite.gpu.CompatibilityList
-import org.tensorflow.lite.gpu.GpuDelegate
 import org.tensorflow.lite.support.common.FileUtil
 import org.tensorflow.lite.support.common.ops.CastOp
 import org.tensorflow.lite.support.common.ops.NormalizeOp
@@ -41,12 +39,6 @@ class Detector(
     fun setup() {
         val model = FileUtil.loadMappedFile(context, modelPath)
         val options = Interpreter.Options()
-        val compatList = CompatibilityList()
-        if(compatList.isDelegateSupportedOnThisDevice){
-            // if the device has a supported GPU, add the GPU delegate
-            val delegateOptions = compatList.bestOptionsForThisDevice
-            options.addDelegate(GpuDelegate(delegateOptions))
-        }
         options.numThreads = 4
         interpreter = Interpreter(model, options)
 
