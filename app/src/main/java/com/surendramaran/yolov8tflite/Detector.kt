@@ -118,7 +118,7 @@ class Detector(
         val processedImage = imageProcessor.process(tensorImage)
         val imageBuffer = processedImage.buffer
 
-        val output = TensorBuffer.createFixedSize(intArrayOf(1 , numChannel, numElements), OUTPUT_IMAGE_TYPE)
+        val output = TensorBuffer.createFixedSize(intArrayOf(1, numChannel, numElements), OUTPUT_IMAGE_TYPE)
         interpreter?.run(imageBuffer, output.buffer)
 
         val bestBoxes = bestBox(output.floatArray)
@@ -137,7 +137,7 @@ class Detector(
         val boundingBoxes = mutableListOf<BoundingBox>()
 
         for (c in 0 until numElements) {
-            var maxConf = -1.0f
+            var maxConf = CONFIDENCE_THRESHOLD
             var maxIdx = -1
             var j = 4
             var arrayIdx = c + numElements * j
