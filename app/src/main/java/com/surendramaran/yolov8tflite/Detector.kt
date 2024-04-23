@@ -57,7 +57,7 @@ class Detector(
             }
         } else {
             Interpreter.Options().apply{
-                this.setNumThreads(2)
+                this.setNumThreads(4)
             }
         }
 
