@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
     private var imageAnalyzer: ImageAnalysis? = null
     private var camera: Camera? = null
     private var cameraProvider: ProcessCameraProvider? = null
-    private lateinit var detector: Detector
+    private var detector: Detector? = null
 
     private lateinit var cameraExecutor: ExecutorService
 
@@ -41,9 +41,9 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
 
         cameraExecutor = Executors.newSingleThreadExecutor()
 
-        cameraExecutor.submit {
+        cameraExecutor.execute {
             detector = Detector(baseContext, MODEL_PATH, LABELS_PATH, this)
-            detector.setup()
+            detector?.setup()
         }
 
         if (allPermissionsGranted()) {
@@ -59,7 +59,7 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
         binding.apply {
             isGpu.setOnCheckedChangeListener { buttonView, isChecked ->
                 cameraExecutor.submit {
-                    detector.setup(isGpu = isChecked)
+                    detector?.setup(isGpu = isChecked)
                 }
                 if (isChecked) {
                     buttonView.setBackgroundColor(ContextCompat.getColor(baseContext, R.color.orange))
@@ -128,7 +128,7 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
                 matrix, true
             )
 
-            detector.detect(rotatedBitmap)
+            detector?.detect(rotatedBitmap)
         }
 
         cameraProvider.unbindAll()
@@ -158,7 +158,7 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
 
     override fun onDestroy() {
         super.onDestroy()
-        detector.close()
+        detector?.close()
         cameraExecutor.shutdown()
     }
 
