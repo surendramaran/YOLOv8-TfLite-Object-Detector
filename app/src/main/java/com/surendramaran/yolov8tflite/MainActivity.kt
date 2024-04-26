@@ -43,7 +43,6 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
 
         cameraExecutor.execute {
             detector = Detector(baseContext, MODEL_PATH, LABELS_PATH, this)
-            detector?.setup()
         }
 
         if (allPermissionsGranted()) {
@@ -59,7 +58,7 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
         binding.apply {
             isGpu.setOnCheckedChangeListener { buttonView, isChecked ->
                 cameraExecutor.submit {
-                    detector?.setup(isGpu = isChecked)
+                    detector?.restart(isGpu = isChecked)
                 }
                 if (isChecked) {
                     buttonView.setBackgroundColor(ContextCompat.getColor(baseContext, R.color.orange))
